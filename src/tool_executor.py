@@ -232,10 +232,6 @@ class ToolExecutor:
         self.history_summary_cache = {}
         self.last_summarized_history_length = 0
         
-        # Long-term memory update control
-        self.memory_update_counter = 0
-        self.memory_update_interval = 10
-        
         # Tool definitions cache to avoid repeated loading
         self._tool_definitions_cache = None
         self._tool_definitions_cache_timestamp = None
@@ -275,27 +271,6 @@ class ToolExecutor:
             out_dir=out_dir,
             user_id=self.user_id
         )
-        
-        # Initialize long-term memory system
-        try:
-            # Check if long-term memory is enabled via environment variable
-            if os.environ.get('AGIBOT_LONG_TERM_MEMORY', '').lower() in ('false', '0', 'no', 'off'):
-                print_current("⚠️ Long-term memory is disabled via environment variable AGIBOT_LONG_TERM_MEMORY")
-                self.long_term_memory = None
-            else:
-                from tools.long_term_memory import LongTermMemoryTools
-                # Long-term memory is now stored in the project root directory
-                # Configuration files will be automatically loaded from the project root directory
-                self.long_term_memory = LongTermMemoryTools(
-                    workspace_root=self.workspace_dir  # For compatibility only; actual storage is in the project root directory
-                )
-                #print_current("✅ Long-term memory system initialized successfully (global shared storage)")
-        except ImportError as e:
-            print_current(f"⚠️ Long-term memory module import failed: {e}")
-            self.long_term_memory = None
-        except Exception as e:
-            print_current(f"⚠️ Long-term memory system initialization failed: {e}")
-            self.long_term_memory = None
         
         # Initialize multi-agent tools directly if enabled
         if self.multi_agent:
@@ -400,54 +375,34 @@ class ToolExecutor:
         if self.planning_tools:
             self.tool_map["plan_tools"] = self.planning_tools.plan_tools
         
-        # Add long-term memory tools if available
-        if self.long_term_memory:
-            self.tool_map.update({
-                "recall_memories": self.long_term_memory.recall_memories,
-                "recall_memories_by_time": self.long_term_memory.recall_memories_by_time,
-                "get_memory_summary": self.long_term_memory.get_memory_summary,
-            })
-            print_system("🧠 Long-term memory tools registered")
-        else:
-            # Add error handlers for disabled memory tools
-            def _memory_disabled_error(*args, **kwargs):
-                return {"status": "error", "message": "Long-term memory feature not enabled or initialization failed"}
-            
-            self.tool_map.update({
-                "recall_memories": _memory_disabled_error,
-                "recall_memories_by_time": _memory_disabled_error,
-                "get_memory_summary": _memory_disabled_error,
-            })
-        
-        # Initialize skill tools if long-term memory is enabled
+        # Initialize skill tools as regular tools
         self.skill_tools = None
-        if self.long_term_memory:
-            try:
-                from src.skill_evolve.skill_tools import SkillTools
-                self.skill_tools = SkillTools(
-                    workspace_root=self.workspace_dir,
-                    user_id=self.user_id
-                )
-                # Register skill tools
-                self.tool_map.update({
-                    "query_skill": self.skill_tools.query_skill,
-                    "rate_skill": self.skill_tools.rate_skill,
-                    "edit_skill": self.skill_tools.edit_skill,
-                    "delete_skill": self.skill_tools.delete_skill,
-                    "copy_skill_files": self.skill_tools.copy_skill_files,
-                })
-                print_system("🎯 Skill tools registered")
-            except ImportError as e:
-                print_current(f"⚠️ Skill tools module import failed: {e}")
-                self.skill_tools = None
-            except Exception as e:
-                print_current(f"⚠️ Skill tools initialization failed: {e}")
-                self.skill_tools = None
+        try:
+            from src.skill_evolve.skill_tools import SkillTools
+            self.skill_tools = SkillTools(
+                workspace_root=self.workspace_dir,
+                user_id=self.user_id
+            )
+            # Register skill tools
+            self.tool_map.update({
+                "query_skill": self.skill_tools.query_skill,
+                "rate_skill": self.skill_tools.rate_skill,
+                "edit_skill": self.skill_tools.edit_skill,
+                "delete_skill": self.skill_tools.delete_skill,
+                "copy_skill_files": self.skill_tools.copy_skill_files,
+            })
+            print_system("🎯 Skill tools registered")
+        except ImportError as e:
+            print_current(f"⚠️ Skill tools module import failed: {e}")
+            self.skill_tools = None
+        except Exception as e:
+            print_current(f"⚠️ Skill tools initialization failed: {e}")
+            self.skill_tools = None
         
         # Add error handlers for disabled skill tools
         if not self.skill_tools:
             def _skill_disabled_error(*args, **kwargs):
-                return {"status": "error", "message": "Skill tools are only available when long-term memory is enabled"}
+                return {"status": "error", "message": "Skill tools are not available"}
             
             self.tool_map.update({
                 "query_skill": _skill_disabled_error,
@@ -832,14 +787,6 @@ class ToolExecutor:
                 except Exception as e:
                     print_current(f"⚠️ cli-mcp client cleanup failed: {e}")
             
-            # Cleanup long-term memory
-            if hasattr(self, 'long_term_memory') and self.long_term_memory:
-                try:
-                    self.long_term_memory.cleanup()
-                    # print_current("🧠 Long-term memory cleanup completed")
-                except Exception as e:
-                    print_current(f"⚠️ Long-term memory cleanup failed: {e}")
-            
             # Cleanup tools
             if hasattr(self, 'tools') and self.tools:
                 try:
@@ -865,7 +812,7 @@ class ToolExecutor:
                                 has_tool_calls: bool, tool_calls_count: int = 0, 
                                 successful_executions: int = 0, history_was_optimized: bool = False) -> Union[str, Tuple[str, List[Dict[str, Any]]]]:
         """
-        Unified method to handle task completion: save debug log, store memory, and return result
+        Unified method to handle task completion: save debug log and return result
         
         Args:
             prompt: Original task prompt
@@ -909,21 +856,6 @@ class ToolExecutor:
             except Exception as log_error:
                 print_current(f"❌ Completion debug log save failed: {log_error}")
         
-        # Store task completion in long-term memory
-        metadata = {
-            "task_completed": True,
-            "completion_method": completion_method,
-            "execution_round": round_counter,
-            "model_used": self.model
-        }
-        if has_tool_calls:
-            metadata.update({
-                "tool_calls_count": tool_calls_count,
-                "successful_executions": successful_executions
-            })
-        
-        self._store_task_completion_memory(prompt, result, metadata, force_update=True)
-        
         finish_operation(f"executing task (round {round_counter})")
         
         # Return optimized history if available
@@ -931,56 +863,6 @@ class ToolExecutor:
             return (result, task_history)
         return result
     
-    def _store_task_completion_memory(self, task_prompt: str, task_result: str, metadata: Dict[str, Any] = None, force_update: bool = False):
-        """
-        Store task completion in long-term memory
-        
-        Args:
-            task_prompt: The original task prompt
-            task_result: The task execution result
-            metadata: Additional metadata about the execution
-            force_update: Force update regardless of interval (for task completion)
-        """
-        try:
-            if not hasattr(self, 'long_term_memory') or not self.long_term_memory:
-                # Long-term memory not available, skip silently
-                return
-            
-            # Increment the counter
-            self.memory_update_counter += 1
-
-            # Check if update is needed: every 10 rounds or forced update
-            should_update = (self.memory_update_counter % self.memory_update_interval == 0) or force_update
-
-            if not should_update:
-                # Skip this update, but log in debug mode
-                return
-
-            # Store the memory
-            result = self.long_term_memory.memory_manager.store_task_memory(
-                task_prompt=task_prompt,
-                task_result=task_result,
-                execution_metadata=metadata
-            )
-
-            if result.get("status") == "success":
-                action = result.get("action", "stored")
-                memory_id = result.get("memory_id", "unknown")
-                # Only print for new memories, not updates
-                #if action == "added":
-                #    print_current(f"🧠 Task memory stored (ID: {memory_id})")
-                #elif action == "updated":
-                #    print_current(f"🧠 Task memory updated (ID: {memory_id})")
-            else:
-                # Only print errors in debug mode to avoid cluttering output
-                if self.debug_mode:
-                    print_current(f"⚠️ Failed to store task memory: {result.get('error', 'Unknown error')}")
-
-        except Exception as e:
-            # Only print errors in debug mode
-            if self.debug_mode:
-                print_current(f"⚠️ Exception occurred while storing task memory: {e}")
-                
     def _setup_llm_client(self):
         """
         Set up the LLM client based on the API base URL.
@@ -1134,26 +1016,6 @@ You are currently operating in INFINITE AUTONOMOUS LOOP MODE. In this mode:
 - Each iteration should build upon previous work and make meaningful progress"""
                 
                 system_prompt = system_prompt.replace(task_completion_section, infinite_loop_section)
-            
-            # Add skill query feature if long-term memory is enabled
-            if self.skill_tools:
-                skill_query_section = """
-## Skill Query Feature
-For complex tasks, you can use the `query_skill` tool to search for relevant historical experiences and skills that might help you complete the task more efficiently. This is especially useful when you encounter similar problems or need to follow established patterns.
-
-When you use skills from `query_skill`, make sure to:
-1. Keep the skill_id in your conversation history for reference
-2. Explicitly document which skills you referenced in plan.md
-3. After task completion, use `rate_skill` to update the quality index of skills you used
-
-The skill system helps you learn from past experiences and improve over time. Use it proactively for complex tasks!
-"""
-                # Insert skill query section before "Task Execution Approach" or at the end
-                if "## Task Execution Approach" in system_prompt:
-                    task_exec_pos = system_prompt.find("## Task Execution Approach")
-                    system_prompt = system_prompt[:task_exec_pos] + skill_query_section + "\n" + system_prompt[task_exec_pos:]
-                else:
-                    system_prompt = system_prompt + skill_query_section
             
             return system_prompt
                 
@@ -1976,16 +1838,6 @@ END OF ERROR FEEDBACK
                         history_was_optimized=history_was_optimized
                     )
                 
-                # Normal tool execution (no completion flag)
-                self._store_task_completion_memory(prompt, combined_result, {
-                    "task_completed": False,
-                    "completion_method": "tool_execution",
-                    "execution_round": round_counter,
-                    "tool_calls_count": len(tool_calls),
-                    "successful_executions": successful_executions,
-                    "model_used": self.model
-                }, force_update=False)
-
                 finish_operation(f"executing task (round {round_counter})")
                 if history_was_optimized:
                     return (combined_result, task_history)
@@ -2972,7 +2824,7 @@ END OF ERROR FEEDBACK
                 # No fallback definitions available
                 tool_definitions = {}
             
-            # Load memory tool definitions
+            # Load skill tool definitions from memory_tools.json
             memory_tools_file = os.path.join(self.prompts_folder, "memory_tools.json")
             if os.path.exists(memory_tools_file):
                 try:
@@ -2981,9 +2833,6 @@ END OF ERROR FEEDBACK
                         tool_definitions.update(memory_tools)
                 except Exception as e:
                     print_current(f"⚠️ Error loading memory tools: {e}")
-            else:
-                # print_current(f"⚠️ Memory tools file not found: {memory_tools_file}")
-                pass
             
             # Check if multi-agent mode is enabled
             multi_agent_enabled = self._is_multi_agent_enabled()

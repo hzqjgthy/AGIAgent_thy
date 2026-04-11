@@ -4328,10 +4328,6 @@
                             </div>
                         </div>
                         <label class="config-option" style="display: flex; align-items: center; gap: 6px; color: var(--text-primary); cursor: pointer; width: 100%;">
-                            <input type="checkbox" id="enableLongTermMemory" style="margin: 0;">
-                            <span>{{ i18n.get('enable_long_term_memory', '启动长期记忆' if lang == 'zh' else 'Long-term Memory') }}</span>
-                        </label>
-                        <label class="config-option" style="display: flex; align-items: center; gap: 6px; color: var(--text-primary); cursor: pointer; width: 100%;">
                             <input type="checkbox" id="enableMCP" style="margin: 0;">
                             <span>{{ i18n.get('enable_mcp', '启动MCP' if lang == 'zh' else 'Enable MCP') }}</span>
                         </label>
@@ -7617,7 +7613,6 @@
                 const guiConfig = {
                     enable_web_search: webSearchMode,
                     enable_multi_agent: multiAgentMode,
-                    enable_long_term_memory: document.getElementById('enableLongTermMemory').checked,
                     enable_mcp: document.getElementById('enableMCP').checked,
                     enable_jieba: document.getElementById('enableJieba').checked,
                     enable_thinking: thinkingMode,
@@ -7942,7 +7937,6 @@
                 const guiConfig = {
                     enable_web_search: webSearchMode,
                     enable_multi_agent: multiAgentMode,
-                    enable_long_term_memory: document.getElementById('enableLongTermMemory').checked,
                     enable_mcp: document.getElementById('enableMCP').checked,
                     enable_jieba: document.getElementById('enableJieba').checked,
                     enable_thinking: thinkingMode,
@@ -15836,7 +15830,6 @@
             // 搜索网络按钮默认状态（已通过webSearchMode变量控制，默认为true，按钮初始样式已设置为激活状态）
 
             // 多智能体按钮默认状态（已通过multiAgentMode变量控制，默认为false）
-            document.getElementById('enableLongTermMemory').checked = true;  // 启动长期记忆默认选择
             document.getElementById('enableMCP').checked = false;            // 启动MCP默认不选择
             document.getElementById('enableJieba').checked = true;           // 启用中文分词默认选择
             

@@ -16,7 +16,9 @@
           "description": "Glob patterns for directories to search over"
         }
       },
-      "required": ["query"]
+      "required": [
+        "query"
+      ]
     }
   },
   "read_file": {
@@ -41,7 +43,10 @@
           "description": "The one-indexed line number to end reading at (inclusive). Required when should_read_entire_file=false, ignored when should_read_entire_file=true."
         }
       },
-      "required": ["target_file", "should_read_entire_file"]
+      "required": [
+        "target_file",
+        "should_read_entire_file"
+      ]
     }
   },
   "run_terminal_cmd": {
@@ -54,7 +59,9 @@
           "description": "The terminal command to execute"
         }
       },
-      "required": ["command"]
+      "required": [
+        "command"
+      ]
     }
   },
   "grep_search": {
@@ -79,7 +86,9 @@
           "description": "Glob pattern for files to include (e.g. '*.ts' for TypeScript files)"
         }
       },
-      "required": ["query"]
+      "required": [
+        "query"
+      ]
     }
   },
   "edit_file": {
@@ -94,7 +103,11 @@
         "edit_mode": {
           "type": "string",
           "description": "Editing mode: 'lines_replace' (precise replacement using exact code matching), 'append' (safest - append to the end of the file), 'full_replace' (completely replace file content).",
-          "enum": ["lines_replace", "append", "full_replace"]
+          "enum": [
+            "lines_replace",
+            "append",
+            "full_replace"
+          ]
         },
         "old_code": {
           "type": "string",
@@ -105,7 +118,11 @@
           "description": "Edit content instructions:\n- lines_replace mode: Provide the new code to replace the old_code with.\n- append mode: Directly provide the content to append to the end of the file\n- full_replace mode: Provide the complete new file content, fully replacing the original file"
         }
       },
-      "required": ["target_file", "edit_mode", "code_edit"]
+      "required": [
+        "target_file",
+        "edit_mode",
+        "code_edit"
+      ]
     }
   },
   "web_search": {
@@ -118,7 +135,9 @@
           "description": "The search term to look up on the web. Be specific and include relevant keywords for better results. For technical queries, include version numbers or dates if relevant."
         }
       },
-      "required": ["search_term"]
+      "required": [
+        "search_term"
+      ]
     }
   },
   "search_img": {
@@ -131,7 +150,9 @@
           "description": "Image search query string, describing the content of the images to find. Please use specific and clear descriptive terms, such as 'red rose flower', 'blue sky and white clouds landscape', etc."
         }
       },
-      "required": ["query"]
+      "required": [
+        "query"
+      ]
     }
   },
   "fetch_webpage_content": {
@@ -148,7 +169,9 @@
           "description": "Optional search term to highlight in the content"
         }
       },
-      "required": ["url"]
+      "required": [
+        "url"
+      ]
     }
   },
   "talk_to_user": {
@@ -165,7 +188,9 @@
           "description": "Maximum time to wait for user response in seconds (default: 10 seconds, -1 to disable timeout)"
         }
       },
-      "required": ["query"]
+      "required": [
+        "query"
+      ]
     }
   },
   "read_img": {
@@ -182,7 +207,10 @@
           "description": "Path to the image file. Supports absolute paths, paths relative to workspace root, or paths relative to current directory. Common formats: jpg, jpeg, png, gif, webp"
         }
       },
-      "required": ["query", "image_path"]
+      "required": [
+        "query",
+        "image_path"
+      ]
     }
   },
   "merge_file": {
@@ -202,7 +230,10 @@
           "description": "Name of the merged output file, e.g., 'combined_report.md'."
         }
       },
-      "required": ["file_list", "output_file"]
+      "required": [
+        "file_list",
+        "output_file"
+      ]
     }
   },
   "convert_docs_to_markdown": {
@@ -215,7 +246,9 @@
           "description": "Path to the document file to convert to Markdown. Supported formats: .docx, .xlsx, .html, .tex, .rst, .pptx, .pdf"
         }
       },
-      "required": ["file_path"]
+      "required": [
+        "file_path"
+      ]
     }
   }
-} 
+}

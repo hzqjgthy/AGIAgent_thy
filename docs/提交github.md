@@ -14,7 +14,6 @@ git commit -m "11111"
 
 git remote add origin https://github.com/hzqjgthy/FPS.git
 
-git push  
 
 git push -u origin main
 

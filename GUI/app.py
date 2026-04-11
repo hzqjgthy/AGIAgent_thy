@@ -484,7 +484,6 @@ I18N_TEXTS = {
         'no_routine': '请选择...',
         'enable_web_search': '搜索网络',
         'enable_multi_agent': '启动多智能体',
-        'enable_long_term_memory': '启动长期记忆',
         'enable_mcp': 'MCP工具配置',
         'enable_jieba': '启用中文分词',
         'enable_thinking': '启用思考模式',
@@ -884,7 +883,6 @@ I18N_TEXTS = {
         'no_routine': 'Please select...',
         'enable_web_search': 'Web Search',
         'enable_multi_agent': 'Multi-Agent',
-        'enable_long_term_memory': 'Long-term Memory',
         'enable_mcp': 'Enable MCP',
         'enable_jieba': 'Chinese Segmentation',
         'enable_thinking': 'Enable Thinking',
@@ -1237,7 +1235,6 @@ def execute_agia_task_process_target(user_requirement, output_queue, input_queue
         # Set default values based on user requirements
         enable_web_search = gui_config.get('enable_web_search', True)
         enable_multi_agent = gui_config.get('enable_multi_agent', False)
-        enable_long_term_memory = gui_config.get('enable_long_term_memory', True)  # Default selection
         enable_mcp = gui_config.get('enable_mcp', False)
         enable_jieba = gui_config.get('enable_jieba', True)  # Default selection
         enable_thinking = gui_config.get('enable_thinking', False)  # Default disabled
@@ -1408,13 +1405,6 @@ def execute_agia_task_process_target(user_requirement, output_queue, input_queue
             os.environ['AGIBOT_ENABLE_JIEBA'] = 'true'
         else:
             os.environ['AGIBOT_ENABLE_JIEBA'] = 'false'
-        
-        # Long-term memory: GUI setting overrides config.txt (set environment variable explicitly)
-        original_env['AGIBOT_LONG_TERM_MEMORY'] = os.environ.get('AGIBOT_LONG_TERM_MEMORY', '')
-        if enable_long_term_memory:
-            os.environ['AGIBOT_LONG_TERM_MEMORY'] = 'true'
-        else:
-            os.environ['AGIBOT_LONG_TERM_MEMORY'] = 'false'
         
         # Set parameters based on mode
         # In plan mode, we still use single_task_mode=True, but plan_mode will be handled separately in run()
