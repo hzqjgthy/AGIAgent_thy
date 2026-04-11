@@ -1,0 +1,5 @@
+The query_skill.query must be strictly equal to env_name and must not append any additional words.
+
+At the start of the task, you need to retrieve skills. If any of the retrieved skills contain a trajectory identical to the current task, your score for this execution must be higher than the score of the retrieved trajectory.
+
+Of course, the retrieved skill trajectory is very likely to be a dead end—an incorrect path with a score of 0. You need to analyze the experience, try to avoid such paths, and engage in more effective exploration.

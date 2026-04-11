@@ -1,0 +1,111 @@
+{
+  "spawn_agent": {
+    "description": "异步生成一个新的 AGIAgent 智能体，在共享工作区中处理特定任务。所有生成的智能体都会在后台运行，以支持并行执行。适用于复杂任务拆分和并行处理。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "task_description": {
+          "type": "string",
+          "description": "新 AGIAgent 智能体要处理的任务描述"
+        },
+        "agent_id": {
+          "type": "string",
+          "description": "自定义智能体 ID（可选，未提供时会自动生成）。必须符合 `agent_XXX` 格式，其中 XXX 为 3 位数字"
+        },
+        "api_key": {
+          "type": "string",
+          "description": "新智能体使用的 API key（可选，未提供时沿用当前值）"
+        },
+        "model": {
+          "type": "string",
+          "description": "新智能体使用的模型名称（可选，未提供时沿用当前值）"
+        },
+        "max_loops": {
+          "type": "integer",
+          "description": "新智能体的最大执行循环次数（默认：25）"
+        },
+        "MCP_config_file": {
+          "type": "string",
+          "description": "自定义 MCP 配置文件路径（可选，默认值为 `config/mcp_servers.json`）"
+        },
+        "prompts_folder": {
+          "type": "string",
+          "description": "自定义 prompts 文件夹路径（可选，默认值为 `prompts`）。可用于切换不同的提示词模板和工具接口"
+        }
+      },
+      "required": ["task_description"]
+    }
+  },
+  "send_P2P_message": {
+    "description": "向指定智能体或 `manager` 管理者发送点对点（P2P）消息以进行直接通信。若要发送给 `manager`，请将 `receiver_id` 设为 `manager`。`content` 参数为必填，必须以字符串或对象形式提供。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "receiver_id": {
+          "type": "string",
+          "description": "要发送消息的目标智能体 ID（发送给 `manager` 时使用 `manager`）"
+        },
+        "content": {
+          "type": "string",
+          "description": "字符串形式的消息内容。这是必填参数。示例：`你好，请回复这条消息` 或 `任务已成功完成`"
+        }
+      },
+      "required": ["receiver_id", "content"]
+    }
+  },
+  "send_broadcast_message": {
+    "description": "向系统中所有活跃智能体发送消息。`content` 参数为必填，且必须提供字符串。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "字符串形式的消息内容。这是必填参数。示例：`5 分钟后进行系统维护` 或 `请所有智能体汇报状态`"
+        }
+      },
+      "required": ["content"]
+    }
+  },
+  "get_agent_session_info": {
+    "description": "获取当前智能体会话的完整信息，包括会话统计、智能体详情以及所有活跃智能体列表。",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "terminate_agent": {
+    "description": "终止指定的 AGIAgent 智能体。使用 `self` 或将 `agent_id` 留空可终止当前智能体。该操作会向智能体发送终止信号，使其停止执行并清理资源。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "要终止的智能体 ID。使用 `self` 或留空可终止当前智能体。"
+        },
+        "reason": {
+          "type": "string",
+          "description": "终止原因（可选）"
+        }
+      },
+      "required": []
+    }
+  },
+  "idle": {
+    "description": "空闲工具，表示本轮不执行任何操作，仅用于多智能体同步。不要使用此工具发送 `TASK_COMPLETED` 信号。该工具允许智能体显式表示当前执行轮次无需行动。默认会休眠 10 秒等待其他智能体，同时监控 `manager` 收件箱中的新 `extmsg` 消息；如果检测到 `extmsg`，会提前退出；否则会等待完整的休眠时长。重要：将 `sleep` 设为 -1 可进入无限休眠模式，此时仅会在用户发送消息时被唤醒。只有在 `manager` 已完成全部任务且没有其他活跃智能体时，才应使用该模式。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "description": "空闲原因（可选，例如：`waiting_for_other_agents`、`no_action_needed`）"
+        },
+        "sleep": {
+          "type": "number",
+          "description": "休眠秒数（默认：10）。设为 0 可跳过休眠。设为 -1 表示无限休眠模式（仅在用户发送消息时唤醒）；只有在 `manager` 已完成全部任务且没有其他活跃智能体时才可使用。"
+        }
+      },
+      "required": []
+    }
+  }
+}

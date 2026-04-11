@@ -1,0 +1,15 @@
+{
+  "query_skill": {
+    "description": "强制工具。在每个任务开始时，你必须先调用 `query_skill`，然后才能调用任何其他工具。它会基于语义相似度从技能库中搜索并检索相关技能，返回最相关的前 3 个技能及其完整内容，包括 `skill_id`、标题、使用条件、质量指数和详细内容。请使用这些结果来指导你后续在环境中的行动。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "用于搜索相关技能的必填查询。请使用当前任务目标、`env_name` 或问题上下文。"
+        }
+      },
+      "required": ["query"]
+    }
+  }
+} 

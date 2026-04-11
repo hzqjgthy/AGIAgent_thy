@@ -1,0 +1,12 @@
+目标：提升账号互动质量，完成评论运营与基础账号维护动作。
+
+执行要求：
+1. 先确认登录状态（xiaohongshu-mcp_check_login_status）。
+2. 使用 xiaohongshu-mcp_list_feeds / xiaohongshu-mcp_get_feed_detail 获取最近内容数据。
+3. 基于用户策略执行互动：
+   - 评论：xiaohongshu-mcp_post_comment_to_feed
+   - 回复：xiaohongshu-mcp_reply_comment_in_feed
+   - 点赞：xiaohongshu-mcp_like_feed
+   - 收藏：xiaohongshu-mcp_favorite_feed
+4. 所有互动行为必须先得到用户明确授权，避免批量/高频操作。
+5. 输出互动日报：操作对象、动作、结果、异常与建议。

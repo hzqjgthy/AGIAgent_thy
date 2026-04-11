@@ -1,0 +1,9 @@
+{
+  "app_name": "小红书运营助手",
+  "app_title": "小红书运营助手",
+  "prompts_path": "prompts",
+  "routine_path": "routine",
+  "logo_path": "logo.png",
+  "config_path": "config.txt",
+  "mcp_config_path": "mcp_servers.json"
+}

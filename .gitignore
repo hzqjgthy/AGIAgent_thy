@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local configuration
+.env
+.env.local
+
+# Claude Code files
+.claude/
+CLAUDE.md
+
+#config
+config/config.txt
+
+# Runtime outputs (do not commit)
+my_outputs/
+output_tale_jericho_*/
+output_tale_jericho_batch_*/
+data/
+data_tale_alfworld/
+data_tale_textworld_express/

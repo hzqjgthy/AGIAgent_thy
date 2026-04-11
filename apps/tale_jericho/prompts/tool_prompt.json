@@ -1,0 +1,44 @@
+{
+  "tale_jericho_action": {
+    "description": "执行一个 Jericho 动作。该工具会在首次调用时自动启动当前任务回合（episode），并在完成后自动关闭。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "发送到环境中的单条文本动作。"
+        },
+        "env_name": {
+          "type": "string",
+          "description": "目标环境/任务名称。首次调用某个任务时必填。"
+        },
+        "task_index": {
+          "type": "integer",
+          "description": "当省略 `env_name` 时使用的任务索引后备值。",
+          "default": 0
+        },
+        "game_seed": {
+          "type": "integer",
+          "description": "可选的游戏随机种子。"
+        },
+        "admissible_commands": {
+          "type": "boolean",
+          "description": "在返回信息中暴露可执行命令。",
+          "default": true
+        },
+        "restart": {
+          "type": "boolean",
+          "description": "强制启动一个新任务，并丢弃当前活动任务。",
+          "default": false
+        },
+        "tale_suite_root": {
+          "type": "string",
+          "description": "可选的 tale-suite 根目录绝对路径。"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    }
+  }
+}

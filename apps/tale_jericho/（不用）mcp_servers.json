@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "retrieve-skill": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+

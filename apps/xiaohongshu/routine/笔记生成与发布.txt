@@ -1,0 +1,10 @@
+目标：根据用户需求完成小红书笔记内容生成，并通过 MCP 工具执行发布。
+
+执行要求：
+1. 先调用 xiaohongshu-mcp_check_login_status 检查登录。
+2. 若未登录，调用 xiaohongshu-mcp_get_login_qrcode 并提示用户扫码后继续。
+3. 生成符合小红书风格的标题、正文、标签；若需要图片，先说明图片来源与版权风险。
+4. 调用发布工具：
+   - 图文：xiaohongshu-mcp_publish_content
+   - 视频：xiaohongshu-mcp_publish_with_video
+5. 发布后记录返回结果（成功/失败、错误信息、关键参数）到 workspace 日志文件。
